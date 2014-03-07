@@ -3,7 +3,7 @@
 // rich@gun.io
 // https://github.com/Miserlou/OpenSpritz
 
-//javascript:(function(){ cb = function(){ create_spritz();}; var script=document.createElement('SCRIPT');script.src='https://miserlou.github.io/OpenSpritz/spritz.js?callback=cb?callback=cb'; script.onload=cb; document.body.appendChild(script);})();
+//javascript:(function(){ cb = function(){ create_spritz();}; var script=document.createElement('SCRIPT');script.src='https://rawgithub.com/WebRTCGame/OpenSpritz/master/spritz.js?callback=cb?callback=cb'; script.onload=cb; document.body.appendChild(script);})();
 
 // Please don't abuse this.
 var readability_token = '556629fabb6902e304e5886b7cf611ab7c3c6308';//'172b057cd7cfccf27b60a36f16b1acde12783893';
