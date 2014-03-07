@@ -1,22 +1,28 @@
-
 // spritz.js
 // A JavaScript Speed Reader
 // rich@gun.io
 // https://github.com/Miserlou/OpenSpritz
 
+//javascript:(function(){ cb = function(){ create_spritz();}; var script=document.createElement('SCRIPT');script.src='https://rawgithub.com/WebRTCGame/OpenSpritz/master/spritz.js?callback=cb?callback=cb'; script.onload=cb; document.body.appendChild(script);})();
+
 // Please don't abuse this.
-var readability_token = '172b057cd7cfccf27b60a36f16b1acde12783893';
+var readability_token = '556629fabb6902e304e5886b7cf611ab7c3c6308';//'172b057cd7cfccf27b60a36f16b1acde12783893';
 
 // Create the view from the remote resource.
 function create_spritz(){
 
      spritz_loader = function() {
 
-        $.get("https://rawgithub.com/Miserlou/OpenSpritz/master/spritz.html", function(data){
+        $.get("https://rawgithub.com/WebRTCGame/OpenSpritz/master/spritz.html", function(data){
 
             if (!($("#spritz_container").length) ) {
                 $("body").prepend(data);
             }
+
+            // I suppose it's better to add that to spritz.html
+            $('#spritz_selector')
+            .after('<input type="range" id="spritz_slider" min="1" max="10" value="1">')
+            .after('<button type="button" id="spritz_toggle">Play</button>');
         },'html');
     };
 
@@ -24,12 +30,12 @@ function create_spritz(){
 }
 
 // jQuery loader: http://coding.smashingmagazine.com/2010/05/23/make-your-own-bookmarklets-with-jquery/
-// This is pretty fucked and should be replaced. Is there anyway we can just force 
+// This is pretty fucked and should be replaced. Is there anyway we can just force
 // the latest jQ? I wouldn't have a problem with that.
 function load_jq(spritz_loader){
 
     // the minimum version of jQuery we want
-    var v = "1.11.0";
+    var v = "1.7.0";
 
     // check prior inclusion and version
     if (window.jQuery === undefined || window.jQuery.fn.jquery < v) {
@@ -92,7 +98,7 @@ function spritzify(input){
     for (var i=0; i<all_words.length; i++){
 
         if(all_words[i].indexOf('.') != -1){
-            temp_words[t] = all_words[i].replace('.', '•');
+            temp_words[t] = all_words[i].replace('.', '&#8226;');
         }
 
         // Double up on long words and words with commas.
@@ -116,18 +122,54 @@ function spritzify(input){
         t++;
 
     }
+
     all_words = temp_words.slice(0);
 
-    // Set the timers!
-    for (var i=0; i<all_words.length; i++){
-        setTimeout(function(x) { 
-            return function() { 
+    var currentWord = 0;
+    var running = false;
+    var spritz_timers = new Array();
 
-                var p = pivot(all_words[x]);
-                $('#spritz_result').html(p);
+    $('#spritz_toggle').click(function() {
+        if(running) {
+            stopSpritz();
+        } else {
+            startSpritz();
+        }
+    });
 
-        }; }(i), ms_per_word * i);
-        
+    $('#spritz_slider').change(function() {
+        updateValues($('#spritz_slider').val() - 1);
+    });
+
+    function updateValues(i) {
+        $('#spritz_slider').val(i);
+        var p = pivot(all_words[i]);
+        $('#spritz_result').html(p);
+        currentWord = i;
+    }
+
+    function startSpritz() {
+        $('#spritz_toggle').html('Stop');
+        running = true;
+        // Set slider max value
+        $('#spritz_slider').attr("max", all_words.length);
+
+        spritz_timers.push(setInterval(function() {
+            updateValues(currentWord);
+            currentWord++;
+            if(currentWord >= all_words.length) {
+                currentWord = 0;
+                stopSpritz();
+            }
+        }, ms_per_word));
+    }
+
+    function stopSpritz() {
+        for(var i = 0; i < spritz_timers.length; i++) {
+            clearTimeout(spritz_timers[i]);
+        }
+        $('#spritz_toggle').html('Play');
+        running = false;
     }
 }
 
@@ -221,7 +263,7 @@ function getSelectionText() {
 function spritzifyURL(){
     var url = document.URL;
 
-    $.getJSON("https://www.readability.com/api/content/v1/parser?url="+ url +"&token=" + readability_token +"&callback=?",
+    $.getJSON("https://www.readability.com/api/content/v1/parser?url="+ encodeURIComponent(url) +"&token=" + readability_token +"&callback=?",
     function (data) {
 
         if(data.error){
@@ -240,7 +282,7 @@ function spritzifyURL(){
         }
 
         var body = jQuery(data.content).text(); // Textify HTML content.
-        body = $.trim(body); // Trip trailing and leading whitespace.
+        body = $.trim(body); // Trim trailing and leading whitespace.
         body = body.replace(/\s+/g, ' '); // Shrink long whitespaces.
 
         var text_content = title + author + body;
@@ -248,7 +290,7 @@ function spritzifyURL(){
         text_content = text_content.replace(/\?/g, '? ');
         text_content = text_content.replace(/\!/g, '! ');
         spritzify(text_content);
-    }).error(function() { $('#spritz_result').html("Article extraction failed. Try selecting text instead."); });
+    });
 
 }
 
