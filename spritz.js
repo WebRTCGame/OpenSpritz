@@ -3,15 +3,17 @@
 // rich@gun.io
 // https://github.com/Miserlou/OpenSpritz
 
+//javascript:(function(){ cb = function(){ create_spritz();}; var script=document.createElement('SCRIPT');script.src='https://miserlou.github.io/OpenSpritz/spritz.js?callback=cb?callback=cb'; script.onload=cb; document.body.appendChild(script);})();
+
 // Please don't abuse this.
-var readability_token = '172b057cd7cfccf27b60a36f16b1acde12783893';
+var readability_token = '556629fabb6902e304e5886b7cf611ab7c3c6308';//'172b057cd7cfccf27b60a36f16b1acde12783893';
 
 // Create the view from the remote resource.
 function create_spritz(){
 
      spritz_loader = function() {
 
-        $.get("https://rawgithub.com/Miserlou/OpenSpritz/master/spritz.html", function(data){
+        $.get("https://rawgithub.com/WebRTCGame/OpenSpritz/master/spritz.html", function(data){
 
             if (!($("#spritz_container").length) ) {
                 $("body").prepend(data);
